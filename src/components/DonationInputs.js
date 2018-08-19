@@ -18,7 +18,7 @@ class DonationInputs extends Component {
   }
 
   handleMessageChange = (e) => {
-    if (e.target.value.length < 300) {
+    if (e.target.value.length < 800) {
       this.setState({
         message: e.target.value,
         messageLength: e.target.value.length,

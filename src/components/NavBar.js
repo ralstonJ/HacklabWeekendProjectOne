@@ -14,9 +14,20 @@ class NavBar extends Component {
     return (
       <nav className="navbar is-fixed-top level" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
+
+
+
+
+
           <a className='navbar-item' href="https://benjirichards.com">
             <img src="https://bulma.io/images/bulma-logo.png" width="224" height="56" />
           </a>
+
+
+
+
+
+          
         </div>   
 
         <div id="navbarExampleTransparentExample" className='navbar-menu'>
