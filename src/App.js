@@ -53,7 +53,7 @@ class App extends Component {
      */
 
     const contract = require('truffle-contract')
-    this.getActiveMetaMaskAccount();
+    await this.getActiveMetaMaskAccount();
     //const simpleStorage = contract(SimpleStorageContract)
     const BlockchainForPeace = contract(BlockchainForPeaceContract)
     BlockchainForPeace.setProvider(this.state.web3.currentProvider)
@@ -63,9 +63,10 @@ class App extends Component {
     // var simpleStorageInstance
     const BlockchainForPeaceInstance = await BlockchainForPeace.deployed()
                     .then(x => console.log(x))
+    this.setState({ BlockchainForPeaceInstance })
 
   }
-  _onClick = () => {
+  onClick = () => {
     console.log('click');
 
   }
