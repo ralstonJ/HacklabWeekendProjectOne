@@ -13,7 +13,8 @@ import './css/open-sans.css'
 import './css/pure-min.css'
 import './App.css'
 
-
+const contract = require('truffle-contract')
+const BlockchainForPeace = contract(BlockchainForPeaceContract)
 
 class App extends Component {
   constructor(props) {
@@ -21,8 +22,11 @@ class App extends Component {
 
     this.state = {
       storageValue: 0,
-      web3: null
+      web3: null,
+      account: null,
+      BlockchainForPeaceInstance: null,
     }
+    this.createMessage = this.createMessage.bind(this)
   }
 
   componentWillMount() {
@@ -43,72 +47,46 @@ class App extends Component {
     })
   }
 
-  instantiateContract() {
-    /*
-     * SMART CONTRACT EXAMPLE
-     *
-     * Normally these functions would be called in the context of a
-     * state management library, but for convenience I've placed them here.
-     */
+  instantiateContract = async () => {
+    this.getActiveMetaMaskAccount();
 
-    const contract = require('truffle-contract')
-    //const simpleStorage = contract(SimpleStorageContract)
-    const BlockchainForPeace = contract(BlockchainForPeaceContract)
     BlockchainForPeace.setProvider(this.state.web3.currentProvider)
-    //simpleStorage.setProvider(this.state.web3.currentProvider)
-
-    // Declaring this for later so we can chain functions on SimpleStorage.
-    // var simpleStorageInstance
-    var BlockchainForPeaceInstance;
-
-    // Get accounts.
-    this.state.web3.eth.getAccounts((error, accounts) => {
-      BlockchainForPeace.deployed().then((instance) => {
-        BlockchainForPeaceInstance = instance
-        console.log('deployed');
-      //simpleStorage.deployed().then((instance) => {
-        //simpleStorageInstance = instance
-
-
-        // Stores a given value, 5 by default.
-       
-        // Get the value from the contract to prove it worked.
-        //return simpleStorageInstance.get.call(accounts[0])
-   //  }).then((result) => {
-        // Update state with the result.
-       // return this.setState({ storageValue: result.c[0] })
-     })
+    const BlockchainForPeaceInstance = await BlockchainForPeace.deployed()
+    return this.setState({ BlockchainForPeaceInstance }, () => {
+      //Once the App State is set, I run a check to see if active MetaMask account changed - setInterval Method suggested by MetaMask FAQ https://tinyurl.com/ycokp3h6
+      setInterval(() => {
+        getWeb3.then( obj => {
+         if (obj.web3.eth.accounts[0] !== this.state.account) location.reload()
+        })
+      }, 100); 
     })
   }
-  _onClick = () => {
-    console.log('click');
 
+
+  getActiveMetaMaskAccount = () => {
+    this.state.web3.eth.getAccounts( (err, accounts) => {
+        this.setState({ account : accounts[0]})
+    })
+}
+
+  createMessage = (message, ethValue) => {
+    this.state.BlockchainForPeaceInstance.messageForPeace(message, { from: this.state.account, value: ethValue})
   }
 
   render() {
     return (
       <div className="App">
         <NavBar />
-        
-        {/* <nav className="navbar pure-menu pure-menu-horizontal">
-            <a href="#" className="pure-menu-heading pure-menu-link">Blockchain For Peace</a>
-        </nav> */}
+
         <br />
         <div className='container'>
-          <DonationInputs />
+          <DonationInputs createMessage={this.createMessage} />
         </div>
 
 
         <main className="container">
           <div className="pure-g">
             <div className="pure-u-1-1">
-
-                
-                <CustomizedInputs />
-                <button onClick={this._onClick}>
-                Donate
-                </button>
-
                 <SimpleTable />
             </div>
           </div>
