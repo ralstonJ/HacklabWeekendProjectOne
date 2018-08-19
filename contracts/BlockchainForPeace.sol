@@ -9,11 +9,15 @@ contract BlockchainForPeace {
     
     //struct for the donation 
     struct Donation {
+        address donor; 
         string message; 
         uint value; 
     }
+    
+    Donation[] public donations; 
+    
     //mapping an address to the donation struct 
-    mapping (address => Donation) public donors;
+    //mapping (address => donation) public donors;
     event Donate(address indexed from, uint amount, string message);
     
     //constructor to initiate the address of the charity being donated to
@@ -22,19 +26,23 @@ contract BlockchainForPeace {
     }
    
     // payable function which auto transfers money to charity address, collects the value and increases the total value counter.
-    function fallback() payable public {
-        donors[msg.sender].value = msg.value; 
-        raised += msg.value;
-        charity.transfer(msg.value);
-    }
+    // function fallback() payable public {
+    //     donors[msg.sender].value = msg.value; 
+    //     raised += msg.value;
+    //     charity.transfer(msg.value);
+    // }
     // optional message to be sent with donation, peace message.
     function messageForPeace(string _message) payable public {
-        donors[msg.sender].value += msg.value;
-        require(donors[msg.sender].value != 0);
-        donors[msg.sender].message = _message;
-        charity.transfer(msg.value);
-        raised += msg.value;
+        require(msg.value > 0);
+        donations.push(Donation(msg.sender, _message, msg.value));
+        // Donations[msg.sender].value += msg.value;
+        // require(donors[msg.sender].value != 0);
+        // donors[msg.sender].message = _message;
+        // charity.transfer(msg.value);
+        // raised += msg.value;
         emit Donate(msg.sender, msg.value, _message);
     }
+    
+
     
 }

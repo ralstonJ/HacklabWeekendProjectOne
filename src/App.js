@@ -20,7 +20,9 @@ class App extends Component {
 
     this.state = {
       storageValue: 0,
-      web3: null
+      web3: null,
+      account: null,
+      BlockchainForPeaceInstance: null,
     }
   }
 
@@ -42,7 +44,7 @@ class App extends Component {
     })
   }
 
-  instantiateContract() {
+  instantiateContract = async () => {
     /*
      * SMART CONTRACT EXAMPLE
      *
@@ -51,6 +53,7 @@ class App extends Component {
      */
 
     const contract = require('truffle-contract')
+    this.getActiveMetaMaskAccount();
     //const simpleStorage = contract(SimpleStorageContract)
     const BlockchainForPeace = contract(BlockchainForPeaceContract)
     BlockchainForPeace.setProvider(this.state.web3.currentProvider)
@@ -58,31 +61,21 @@ class App extends Component {
 
     // Declaring this for later so we can chain functions on SimpleStorage.
     // var simpleStorageInstance
-    var BlockchainForPeaceInstance;
+    const BlockchainForPeaceInstance = await BlockchainForPeace.deployed()
+                    .then(x => console.log(x))
 
-    // Get accounts.
-    this.state.web3.eth.getAccounts((error, accounts) => {
-      BlockchainForPeace.deployed().then((instance) => {
-        BlockchainForPeaceInstance = instance
-        console.log('deployed');
-      //simpleStorage.deployed().then((instance) => {
-        //simpleStorageInstance = instance
-
-
-        // Stores a given value, 5 by default.
-       
-        // Get the value from the contract to prove it worked.
-        //return simpleStorageInstance.get.call(accounts[0])
-   //  }).then((result) => {
-        // Update state with the result.
-       // return this.setState({ storageValue: result.c[0] })
-     })
-    })
   }
   _onClick = () => {
     console.log('click');
 
   }
+
+  getActiveMetaMaskAccount = async () => {
+    this.state.web3.eth.getAccounts( (err, accounts) => {
+      this.setState({ account: accounts[0] })
+    } )
+  }
+
   render() {
     return (
       <div className="App">
