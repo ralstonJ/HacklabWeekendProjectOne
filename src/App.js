@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import BlockchainForPeaceContract from '../build/contracts/BlockchainForPeace.json' 
-  
-
 import getWeb3 from './utils/getWeb3'
-
 import SimpleTable from './table/SimpleTable'
 import CustomizedInputs from './TextFields/CustomizedInputs'
+
+import 'bulma/css/bulma.css';
+import NavBar from './components/NavBar.js';
+import DonationInputs from './components/DonationInputs.js';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -20,7 +21,9 @@ class App extends Component {
 
     this.state = {
       storageValue: 0,
-      web3: null
+      web3: null,
+      account: null,
+      BlockchainForPeaceInstance: null,
     }
   }
 
@@ -42,7 +45,7 @@ class App extends Component {
     })
   }
 
-  instantiateContract() {
+  instantiateContract = async () => {
     /*
      * SMART CONTRACT EXAMPLE
      *
@@ -51,6 +54,7 @@ class App extends Component {
      */
 
     const contract = require('truffle-contract')
+    await this.getActiveMetaMaskAccount();
     //const simpleStorage = contract(SimpleStorageContract)
     const BlockchainForPeace = contract(BlockchainForPeaceContract)
     BlockchainForPeace.setProvider(this.state.web3.currentProvider)
@@ -58,41 +62,40 @@ class App extends Component {
 
     // Declaring this for later so we can chain functions on SimpleStorage.
     // var simpleStorageInstance
-    var BlockchainForPeaceInstance;
+    const BlockchainForPeaceInstance = await BlockchainForPeace.deployed()
+                    .then(x => console.log(x))
+    this.setState({ BlockchainForPeaceInstance })
 
-    // Get accounts.
-    this.state.web3.eth.getAccounts((error, accounts) => {
-      BlockchainForPeace.deployed().then((instance) => {
-        BlockchainForPeaceInstance = instance
-        console.log('deployed');
-      //simpleStorage.deployed().then((instance) => {
-        //simpleStorageInstance = instance
-
-
-        // Stores a given value, 5 by default.
-       
-        // Get the value from the contract to prove it worked.
-        //return simpleStorageInstance.get.call(accounts[0])
-   //  }).then((result) => {
-        // Update state with the result.
-       // return this.setState({ storageValue: result.c[0] })
-     })
-    })
   }
-  _onClick = () => {
+  onClick = () => {
     console.log('click');
 
   }
+
+  getActiveMetaMaskAccount = async () => {
+    this.state.web3.eth.getAccounts( (err, accounts) => {
+      this.setState({ account: accounts[0] })
+    } )
+  }
+
   render() {
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
+        <NavBar />
+        
+        {/* <nav className="navbar pure-menu pure-menu-horizontal">
             <a href="#" className="pure-menu-heading pure-menu-link">Blockchain For Peace</a>
-        </nav>
+        </nav> */}
+        <br />
+        <div className='container'>
+          <DonationInputs />
+        </div>
+
 
         <main className="container">
           <div className="pure-g">
             <div className="pure-u-1-1">
+
                 
                 <CustomizedInputs />
                 <button onClick={this._onClick}>
