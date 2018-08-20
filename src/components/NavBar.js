@@ -20,7 +20,7 @@ class NavBar extends Component {
 
 
           <a className='navbar-item' href="https://benjirichards.com">
-            <img src="https://bulma.io/images/bulma-logo.png" width="224" height="56" />
+            <img src="https://bulma.io/images/bulma-logo.png" alt="logo" width="224" height="56" />
           </a>
 
 

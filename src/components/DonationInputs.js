@@ -28,9 +28,9 @@ class DonationInputs extends Component {
 
   handleDonationSubmit = (e) => {
     e.preventDefault();
-    //SEND SUBMITION TO BLOCKCHAIN HERE
+
     const { message, ethValue } = this.state;
-    this.props.createMessage(message, ethValue)
+    this.props.createMessage(message, ethValue);
   }
   
   render() {
@@ -76,6 +76,7 @@ class DonationInputs extends Component {
         </div> */}
 
         <button
+          className="button is-primary"
           onSubmit={this.handleDonationSubmit}>
           Donate
         </button>

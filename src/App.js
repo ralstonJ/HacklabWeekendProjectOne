@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import BlockchainForPeaceContract from '../build/contracts/BlockchainForPeace.json' 
 import getWeb3 from './utils/getWeb3'
-import SimpleTable from './table/SimpleTable'
-import CustomizedInputs from './TextFields/CustomizedInputs'
 
 import 'bulma/css/bulma.css';
 import NavBar from './components/NavBar.js';
 import DonationInputs from './components/DonationInputs.js';
+import LeaderBoard from './components/LeaderBoard.js';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -25,6 +24,8 @@ class App extends Component {
       web3: null,
       account: null,
       BlockchainForPeaceInstance: null,
+      totalNumOfDonations: 0,
+      donations: [],
     }
     this.createMessage = this.createMessage.bind(this)
   }
@@ -38,7 +39,6 @@ class App extends Component {
       this.setState({
         web3: results.web3
       })
-
       // Instantiate contract once web3 provided.
       this.instantiateContract()
     })
@@ -52,7 +52,12 @@ class App extends Component {
 
     BlockchainForPeace.setProvider(this.state.web3.currentProvider)
     const BlockchainForPeaceInstance = await BlockchainForPeace.deployed()
-    return this.setState({ BlockchainForPeaceInstance }, () => {
+    const totalNumOfDonations = await BlockchainForPeaceInstance.getDonationLength.call()
+                                            .then(result => result.toString())
+
+    const donations = await this.getDonationList(BlockchainForPeaceInstance, totalNumOfDonations)
+
+    return this.setState({ BlockchainForPeaceInstance, donations, totalNumOfDonations }, () => {
       //Once the App State is set, I run a check to see if active MetaMask account changed - setInterval Method suggested by MetaMask FAQ https://tinyurl.com/ycokp3h6
       setInterval(() => {
         getWeb3.then( obj => {
@@ -61,7 +66,6 @@ class App extends Component {
       }, 100); 
     })
   }
-
 
   getActiveMetaMaskAccount = () => {
     this.state.web3.eth.getAccounts( (err, accounts) => {
@@ -73,24 +77,28 @@ class App extends Component {
     this.state.BlockchainForPeaceInstance.messageForPeace(message, { from: this.state.account, value: ethValue})
   }
 
+  getDonationList = async (contractInstance, numOfDonations) => {
+    // fetch Donations and Rebuild Array of Donations Object/Struct
+    const promiseArr = [];
+  
+    for (let i = 0; i < numOfDonations; i++ ) 
+        { promiseArr[i] = await contractInstance.getDonation(i) }
+
+    return promiseArr.map( ([ donorAddress, message, value ]) => ({ donorAddress, message, value: value.toString() }))
+  }
+
   render() {
     return (
       <div className="App">
         <NavBar />
-
-        <br />
-        <div className='container'>
-          <DonationInputs createMessage={this.createMessage} />
-        </div>
-
-
-        <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
-                <SimpleTable />
-            </div>
+        <section className="section" >
+          <div className="container" >
+            <LeaderBoard donations={this.state.donations} />
           </div>
-        </main>
+          <div className='container'>
+            <DonationInputs createMessage={this.createMessage} />
+          </div>
+        </section>
       </div>
     );
   }
